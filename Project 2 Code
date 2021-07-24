@@ -1,0 +1,39 @@
+bankdata = read.csv(file.choose())
+
+library(MASS)
+library(epitools)
+library(naniar)
+library(tidyverse)
+library(mice)
+library(ggplot2)
+library(htmlwidgets)
+library(caTools)
+library(class)
+library(caret)
+library(GGally)
+
+bankdata$y = as.factor(bankdata$y)
+bankdata$job = as.factor(bankdata$job)
+bankdata$education = as.factor(bankdata$education)
+bankdata$marital = as.factor(bankdata$marital)
+bankdata$month = as.factor(bankdata$month)
+bankdata$housing = as.factor(bankdata$housing)
+
+
+gg_miss_var(bankdata)
+summary(bankdata)
+ggpairs(bankdata,columns=1:9 ,aes(colour=y))
+
+bankdata %>% ggplot(aes(x=age, color=y)) + geom_boxplot()
+bankdata %>% ggplot(aes(x=job, color=y)) + geom_bar() + facet_wrap(~y)
+
+mat = table(bankdata$housing,bankdata$y)
+mat
+oddsratio.wald(mat)       
+
+simple_log = glm(y~housing, family="binomial", data=bankdata)
+summary(simple_log)
+
+full.log = glm(y~.,family="binomial",data=bankdata)
+step.log = full.log %>% stepAIC(trace=FALSE)
+summary(step.log)
